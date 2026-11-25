@@ -9,7 +9,7 @@ import static io.restassured.RestAssured.given;
 
 public class UserApiClient {
 
-    private static final String BASE_URI = System.getProperty("baseUri", "http://18.18.18.18");
+    private static final String BASE_URI = System.getProperty("baseUri", "http://localhost");
     private static final int PORT = Integer.parseInt(System.getProperty("port", "3333"));
 
     private final RequestSpecification baseSpec;

@@ -13,15 +13,12 @@ import static org.example.utils.TestHelper.uniqueEmail;
 import static org.example.utils.TestHelper.uniqueUsername;
 import static org.example.utils.TestHelper.validPassword;
 
-/**
- * Чек-лист №4-9: негативные проверки /user/create
- */
 class UserCreateNegativeTest {
 
     private final UserApiClient client = new UserApiClient();
 
     @Test
-    @DisplayName("Чек-лист №4: Отсутствует поле username → 400, «A username is required»")
+    @DisplayName("Чек-лист №3: Отсутствует поле username → 400, «A username is required»")
     void missingUsername() {
         Response response = client.createUser(Map.of(
                 "email", uniqueEmail(uniqueUsername()),
@@ -31,7 +28,7 @@ class UserCreateNegativeTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №5: Отсутствует поле email → 400, «An Email is required»")
+    @DisplayName("Чек-лист №4: Отсутствует поле email → 400, «An Email is required»")
     void missingEmail() {
         Response response = client.createUser(Map.of(
                 "username", uniqueUsername(),
@@ -41,7 +38,7 @@ class UserCreateNegativeTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №6: Отсутствует поле password → 400, «A password is required»")
+    @DisplayName("Чек-лист №5: Отсутствует поле password → 400, «A password is required»")
     void missingPassword() {
         Response response = client.createUser(Map.of(
                 "username", uniqueUsername(),
@@ -51,7 +48,7 @@ class UserCreateNegativeTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №7: Все три поля отсутствуют → 400, «A username is required»")
+    @DisplayName("Чек-лист №6: Все три поля отсутствуют → 400, «A username is required»")
     void allFieldsMissing() {
         Response response = client.createUser(Map.of());
 
@@ -59,7 +56,7 @@ class UserCreateNegativeTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №8: Регистрация с уже занятым username → 400, «This username is taken. Try another.»")
+    @DisplayName("Чек-лист №7: Регистрация с уже занятым username → 400, «This username is taken. Try another.»")
     void duplicateUsername() {
         String username = uniqueUsername();
         Response first = client.createUser(username, uniqueEmail(username), validPassword());
@@ -71,7 +68,7 @@ class UserCreateNegativeTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №9: Регистрация с уже занятым email → 400, «Email already exists»")
+    @DisplayName("Чек-лист №8: Регистрация с уже занятым email → 400, «Email already exists»")
     void duplicateEmail() {
         String username = uniqueUsername();
         String email = uniqueEmail(username);

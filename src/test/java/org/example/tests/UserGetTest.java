@@ -1,25 +1,27 @@
 package org.example.tests;
 
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
 import org.example.client.UserApiClient;
 import org.example.model.UserDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.example.utils.TestHelper.createRandomUser;
+import static org.example.utils.TestHelper.getUsers;
 import static org.example.utils.TestHelper.uniqueEmail;
 import static org.example.utils.TestHelper.uniqueUsername;
 import static org.example.utils.TestHelper.validPassword;
 
-/**
- * Чек-лист №10-12: проверки /user/get
- */
 class UserGetTest {
 
     private final UserApiClient client = new UserApiClient();
 
     @Test
-    @DisplayName("Чек-лист №10: GET /user/get → 200, возвращается массив пользователей")
+    @DisplayName("Чек-лист №9: GET /user/get → 200, возвращается массив пользователей")
     void getUsersReturnsArray() {
         Response response = client.getUsers();
 
@@ -27,18 +29,17 @@ class UserGetTest {
                 .as("Ожидался статус 200, получен %d. Тело ответа: %s", response.getStatusCode(), response.asString())
                 .isEqualTo(200);
 
-        UserDto[] users = response.as(UserDto[].class);
+        List<UserDto> users = response.as(new TypeRef<>() {
+        });
         assertThat(users).as("Ответ должен быть JSON-массивом").isNotNull();
     }
 
     @Test
-    @DisplayName("Чек-лист №11: Структура объекта пользователя — все поля присутствуют")
+    @DisplayName("Чек-лист №10: Структура объекта пользователя — все поля присутствуют")
     void userObjectHasAllFields() {
-        String username = uniqueUsername();
-        Response createResponse = client.createUser(username, uniqueEmail(username), validPassword());
-        assertThat(createResponse.getStatusCode()).as("Регистрация должна пройти успешно").isEqualTo(200);
+        createRandomUser(client);
 
-        UserDto[] users = client.getUsers().as(UserDto[].class);
+        List<UserDto> users = getUsers(client);
         assertThat(users).as("Список пользователей не должен быть пустым").isNotEmpty();
 
         assertThat(users).allSatisfy(user -> {
@@ -52,14 +53,14 @@ class UserGetTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №12: Пароль в списке хеширован, не возвращается в открытом виде")
+    @DisplayName("Чек-лист №11: Пароль в списке хеширован, не возвращается в открытом виде")
     void passwordsInListAreHashed() {
         String username = uniqueUsername();
         String password = validPassword();
         Response createResponse = client.createUser(username, uniqueEmail(username), password);
         assertThat(createResponse.getStatusCode()).as("Регистрация должна пройти успешно").isEqualTo(200);
 
-        UserDto[] users = client.getUsers().as(UserDto[].class);
+        List<UserDto> users = getUsers(client);
         assertThat(users).as("Список пользователей не должен быть пустым").isNotEmpty();
 
         assertThat(users)

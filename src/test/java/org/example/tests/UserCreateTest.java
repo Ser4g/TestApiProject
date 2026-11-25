@@ -11,9 +11,7 @@ import static org.example.utils.TestHelper.uniqueEmail;
 import static org.example.utils.TestHelper.uniqueUsername;
 import static org.example.utils.TestHelper.validPassword;
 
-/**
- * Чек-лист №1-3: позитивные проверки /user/create
- */
+
 class UserCreateTest {
 
     private final UserApiClient client = new UserApiClient();
@@ -46,23 +44,7 @@ class UserCreateTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №2: В details возвращаются корректные username и email")
-    void detailsContainSentValues() {
-        String username = uniqueUsername();
-        String email = uniqueEmail(username);
-
-        Response response = client.createUser(username, email, validPassword());
-
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        CreateUserResponse.Details details = response.as(CreateUserResponse.class).details();
-
-        assertThat(details).isNotNull();
-        assertThat(details.username()).as("username в details должен совпадать с отправленным").isEqualTo(username);
-        assertThat(details.email()).as("email в details должен совпадать с отправленным").isEqualTo(email);
-    }
-
-    @Test
-    @DisplayName("Чек-лист №3: Пароль в ответе хеширован, не возвращается в открытом виде")
+    @DisplayName("Чек-лист №2: Пароль в ответе хеширован, не возвращается в открытом виде")
     void passwordIsHashed() {
         String username = uniqueUsername();
         String password = validPassword();

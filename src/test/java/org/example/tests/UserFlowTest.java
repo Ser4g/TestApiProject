@@ -8,36 +8,31 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.example.utils.TestHelper.createRandomUser;
+import static org.example.utils.TestHelper.findUserByUsername;
+import static org.example.utils.TestHelper.getUsers;
 import static org.example.utils.TestHelper.uniqueEmail;
 import static org.example.utils.TestHelper.uniqueUsername;
-import static org.example.utils.TestHelper.validPassword;
 
-/**
- * Чек-лист №13-15: сквозные проверки create → get
- */
 class UserFlowTest {
+
+    private static final int USER_COUNT = 3;
 
     private final UserApiClient client = new UserApiClient();
 
     @Test
-    @DisplayName("Чек-лист №13: create → get → пользователь присутствует с корректными данными")
+    @DisplayName("Чек-лист №12: create → get → пользователь присутствует с корректными данными")
     void createdUserIsPresentInList() {
-        String username = uniqueUsername();
-        String email = uniqueEmail(username);
+        CreateUserResponse.Details details = createRandomUser(client);
 
-        Response createResponse = client.createUser(username, email, validPassword());
-        assertThat(createResponse.getStatusCode()).as("Регистрация должна пройти успешно").isEqualTo(200);
-        CreateUserResponse.Details details = createResponse.as(CreateUserResponse.class).details();
-
-        UserDto created = findUserByUsername(username);
-        assertThat(created).as("Пользователь %s должен присутствовать в /user/get", username).isNotNull();
-        assertThat(created.username()).isEqualTo(username);
-        assertThat(created.email()).as("email в /user/get").isEqualTo(email);
+        UserDto created = findUserByUsername(client, details.username());
+        assertThat(created).as("Пользователь %s должен присутствовать в /user/get", details.username()).isNotNull();
+        assertThat(created.username()).isEqualTo(details.username());
+        assertThat(created.email()).as("email в /user/get").isEqualTo(details.email());
         assertThat(created.id()).as("id в /user/get должен совпадать с id из ответа create").isEqualTo(details.id());
         assertThat(created.password()).as("Пароль должен быть хеширован").startsWith("$2a$");
         assertThat(created.createdAt()).as("created_at").isNotBlank();
@@ -45,21 +40,14 @@ class UserFlowTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №14: Несколько регистраций — все пользователи в /user/get, id уникальны и инкрементируются")
+    @DisplayName("Чек-лист №13: Несколько регистраций — все пользователи в /user/get, id уникальны и инкрементируются")
     void multipleRegistrations() {
-        int usersCount = 3;
-
-        UserDto[] usersBefore = client.getUsers().as(UserDto[].class);
-        int maxIdBefore = Arrays.stream(usersBefore).mapToInt(UserDto::id).max().orElse(0);
+        List<UserDto> usersBefore = getUsers(client);
+        int maxIdBefore = usersBefore.stream().mapToInt(UserDto::id).max().orElse(0);
 
         List<CreateUserResponse.Details> created = new ArrayList<>();
-        for (int i = 0; i < usersCount; i++) {
-            String username = uniqueUsername();
-            Response response = client.createUser(username, uniqueEmail(username), validPassword());
-            assertThat(response.getStatusCode())
-                    .as("Регистрация пользователя %d должна пройти успешно", i + 1)
-                    .isEqualTo(200);
-            created.add(response.as(CreateUserResponse.class).details());
+        for (int i = 0; i < USER_COUNT; i++) {
+            created.add(createRandomUser(client));
         }
 
         List<Integer> ids = created.stream().map(CreateUserResponse.Details::id).toList();
@@ -70,12 +58,8 @@ class UserFlowTest {
                 .as("id должны инкрементироваться: каждый новый id больше максимального существовавшего (%d)", maxIdBefore)
                 .allSatisfy(id -> assertThat(id).isGreaterThan(maxIdBefore));
 
-        UserDto[] allUsers = client.getUsers().as(UserDto[].class);
         for (CreateUserResponse.Details details : created) {
-            UserDto user = Arrays.stream(allUsers)
-                    .filter(u -> u.username().equals(details.username()))
-                    .findFirst()
-                    .orElse(null);
+            UserDto user = findUserByUsername(client, details.username());
             assertThat(user)
                     .as("Пользователь %s должен присутствовать в /user/get", details.username())
                     .isNotNull();
@@ -85,7 +69,7 @@ class UserFlowTest {
     }
 
     @Test
-    @DisplayName("Чек-лист №15: create (ошибка) → get: пользователь НЕ добавлен в список")
+    @DisplayName("Чек-лист №14: create (ошибка) → get: пользователь НЕ добавлен в список")
     void failedCreateDoesNotAddUser() {
         String username = uniqueUsername();
 
@@ -96,17 +80,8 @@ class UserFlowTest {
                 .as("Регистрация без password должна завершиться ошибкой")
                 .isEqualTo(400);
 
-        assertThat(findUserByUsername(username))
+        assertThat(findUserByUsername(client, username))
                 .as("Пользователь %s не должен быть добавлен в /user/get после неуспешной регистрации", username)
                 .isNull();
-    }
-
-    private UserDto findUserByUsername(String username) {
-        Response response = client.getUsers();
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        return Arrays.stream(response.as(UserDto[].class))
-                .filter(u -> u.username().equals(username))
-                .findFirst()
-                .orElse(null);
     }
 }
