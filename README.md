@@ -50,7 +50,7 @@ src/test/java/org/example/
 ├── utils/TestHelper.java              — вспомогательные методы: генерация уникальных username/email
 └── tests/
     ├── UserCreateTest.java          — чек-лист №1-2 (позитивные create)
-    ├── UserCreateNegativeTest.java  — чек-лист №3-8 (нет полей, дубликаты)
+    ├── UserCreateNegativeTest.java  — чек-лист №3-8 (нет полей, пустые значения, дубликаты)
     ├── UserGetTest.java             — чек-лист №9-11 (массив, структура, хеш)
     ├── UserFlowTest.java            — чек-лист №12-14 (сквозные create → get)
     └── UserCreateSecurityTest.java  — чек-лист №1 из пункта 2.1 (SQL-инъекция)
