@@ -46,8 +46,8 @@ class UserGetTest {
             assertThat(user.username()).as("username пользователя id=%s", user.id()).isNotNull();
             assertThat(user.email()).as("email пользователя id=%s", user.id()).isNotNull();
             assertThat(user.password()).as("password пользователя id=%s", user.id()).isNotNull();
-            assertThat(user.created_at()).as("created_at пользователя id=%s", user.id()).isNotNull();
-            assertThat(user.updated_at()).as("updated_at пользователя id=%s", user.id()).isNotNull();
+            assertThat(user.createdAt()).as("created_at пользователя id=%s", user.id()).isNotNull();
+            assertThat(user.updatedAt()).as("updated_at пользователя id=%s", user.id()).isNotNull();
         });
     }
 

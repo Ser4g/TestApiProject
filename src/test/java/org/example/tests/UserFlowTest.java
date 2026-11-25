@@ -40,8 +40,8 @@ class UserFlowTest {
         assertThat(created.email()).as("email в /user/get").isEqualTo(email);
         assertThat(created.id()).as("id в /user/get должен совпадать с id из ответа create").isEqualTo(details.id());
         assertThat(created.password()).as("Пароль должен быть хеширован").startsWith("$2a$");
-        assertThat(created.created_at()).as("created_at").isNotBlank();
-        assertThat(created.updated_at()).as("updated_at").isNotBlank();
+        assertThat(created.createdAt()).as("created_at").isNotBlank();
+        assertThat(created.updatedAt()).as("updated_at").isNotBlank();
     }
 
     @Test

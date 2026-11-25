@@ -41,8 +41,8 @@ class UserCreateTest {
         assertThat(details.email()).as("email в details").isEqualTo(email);
         assertThat(details.password()).as("password в details").isNotBlank();
         assertThat(details.id()).as("id в details").isNotNull().isPositive();
-        assertThat(details.created_at()).as("created_at в details").isNotBlank();
-        assertThat(details.updated_at()).as("updated_at в details").isNotBlank();
+        assertThat(details.createdAt()).as("created_at в details").isNotBlank();
+        assertThat(details.updatedAt()).as("updated_at в details").isNotBlank();
     }
 
     @Test

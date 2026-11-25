@@ -1,6 +1,8 @@
 package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.List;
 
@@ -11,13 +13,14 @@ public record CreateUserResponse(
         List<String> message
 ) {
 
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Details(
             String username,
             String email,
             String password,
-            String created_at,
-            String updated_at,
+            String createdAt,
+            String updatedAt,
             Integer id
     ) {
     }
