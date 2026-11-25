@@ -2,6 +2,7 @@ package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 public record CreateUserResponse(
         boolean success,
         Details details,
-        List<String> message
+        @JsonDeserialize(using = StringOrListDeserializer.class) List<String> message
 ) {
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

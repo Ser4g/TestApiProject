@@ -50,7 +50,10 @@ class UserCreateNegativeTest {
     @Test
     @DisplayName("Чек-лист №6: Все три поля отсутствуют → 400, «A username is required»")
     void allFieldsMissing() {
-        Response response = client.createUser(Map.of());
+        Response response = client.createUser(Map.of(
+                "username", "",
+                "email", "",
+                "password", ""));
 
         assertBadRequest(response, "A username is required");
     }
