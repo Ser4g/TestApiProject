@@ -12,6 +12,14 @@ public class UserApiClient {
     private static final String BASE_URI = System.getProperty("baseUri", "http://18.18.18.18");
     private static final int PORT = Integer.parseInt(System.getProperty("port", "3333"));
 
+    private final RequestSpecification baseSpec;
+
+    public UserApiClient() {
+        this.baseSpec = given()
+                .baseUri(BASE_URI)
+                .port(PORT);
+    }
+
     public Response createUser(String username, String email, String password) {
         return createUser(Map.of(
                 "username", username,
@@ -19,13 +27,9 @@ public class UserApiClient {
                 "password", password));
     }
 
-    /**
-     * Отправляет только те поля, которые есть в map — для проверок с отсутствующими обязательными полями.
-     */
     public Response createUser(Map<String, String> formData) {
         RequestSpecification request = given()
-                .baseUri(BASE_URI)
-                .port(PORT)
+                .spec(baseSpec)
                 .contentType("multipart/form-data");
         formData.forEach(request::multiPart);
         return request.when().post("/user/create");
@@ -33,8 +37,7 @@ public class UserApiClient {
 
     public Response getUsers() {
         return given()
-                .baseUri(BASE_URI)
-                .port(PORT)
+                .spec(baseSpec)
                 .when()
                 .get("/user/get");
     }
