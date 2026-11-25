@@ -2,9 +2,9 @@ package org.example.utils;
 
 import java.util.UUID;
 
-public final class TestData {
+public final class TestHelper {
 
-    private TestData() {
+    private TestHelper() {
     }
 
     public static String uniqueUsername() {

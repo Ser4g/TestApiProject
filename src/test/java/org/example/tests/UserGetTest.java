@@ -7,9 +7,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.example.utils.TestData.uniqueEmail;
-import static org.example.utils.TestData.uniqueUsername;
-import static org.example.utils.TestData.validPassword;
+import static org.example.utils.TestHelper.uniqueEmail;
+import static org.example.utils.TestHelper.uniqueUsername;
+import static org.example.utils.TestHelper.validPassword;
 
 /**
  * Чек-лист №10-12: проверки /user/get

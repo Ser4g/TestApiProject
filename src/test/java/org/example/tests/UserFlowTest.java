@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.example.utils.TestData.uniqueEmail;
-import static org.example.utils.TestData.uniqueUsername;
-import static org.example.utils.TestData.validPassword;
+import static org.example.utils.TestHelper.uniqueEmail;
+import static org.example.utils.TestHelper.uniqueUsername;
+import static org.example.utils.TestHelper.validPassword;
 
 /**
  * Чек-лист №13-15: сквозные проверки create → get
@@ -48,8 +48,11 @@ class UserFlowTest {
     @DisplayName("Чек-лист №14: Несколько регистраций — все пользователи в /user/get, id уникальны и инкрементируются")
     void multipleRegistrations() {
         int usersCount = 3;
-        List<CreateUserResponse.Details> created = new ArrayList<>();
 
+        UserDto[] usersBefore = client.getUsers().as(UserDto[].class);
+        int maxIdBefore = Arrays.stream(usersBefore).mapToInt(UserDto::id).max().orElse(0);
+
+        List<CreateUserResponse.Details> created = new ArrayList<>();
         for (int i = 0; i < usersCount; i++) {
             String username = uniqueUsername();
             Response response = client.createUser(username, uniqueEmail(username), validPassword());
@@ -64,8 +67,8 @@ class UserFlowTest {
                 .as("id должны быть уникальны")
                 .doesNotHaveDuplicates();
         assertThat(ids)
-                .as("id должны инкрементироваться (строго возрастать)")
-                .isSortedAccordingTo(Integer::compareTo);
+                .as("id должны инкрементироваться: каждый новый id больше максимального существовавшего (%d)", maxIdBefore)
+                .allSatisfy(id -> assertThat(id).isGreaterThan(maxIdBefore));
 
         UserDto[] allUsers = client.getUsers().as(UserDto[].class);
         for (CreateUserResponse.Details details : created) {

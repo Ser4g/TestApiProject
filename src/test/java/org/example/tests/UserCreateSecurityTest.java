@@ -6,12 +6,13 @@ import org.example.model.UserDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.example.utils.TestData.uniqueEmail;
-import static org.example.utils.TestData.uniqueUsername;
-import static org.example.utils.TestData.validPassword;
+import static org.example.utils.TestHelper.uniqueEmail;
+import static org.example.utils.TestHelper.uniqueUsername;
+import static org.example.utils.TestHelper.validPassword;
 
 /**
  * Нефункциональные проверки. Раздел 2.1 Безопасность
@@ -23,6 +24,10 @@ class UserCreateSecurityTest {
     @Test
     @DisplayName("Безопасность 2.1.1: SQL-инъекция в username/email — без 500 и без влияния на БД")
     void sqlInjectionIsHandledSafely() {
+        String markerUsername = uniqueUsername();
+        Response marker = client.createUser(markerUsername, uniqueEmail(markerUsername), validPassword());
+        assertThat(marker.getStatusCode()).as("Создание маркерного пользователя должно пройти успешно").isEqualTo(200);
+
         Response injectionInUsername = client.createUser(Map.of(
                 "username", "admin'--",
                 "email", uniqueEmail(uniqueUsername()),
@@ -33,7 +38,7 @@ class UserCreateSecurityTest {
 
         Response injectionInEmail = client.createUser(Map.of(
                 "username", uniqueUsername(),
-                "email", "'; DROP TABLE users;--",
+                "email", "'; TRUNCATE TABLE users;--",
                 "password", validPassword()));
         assertThat(injectionInEmail.getStatusCode())
                 .as("SQL-инъекция в email не должна приводить к 500. Тело: %s", injectionInEmail.asString())
@@ -45,5 +50,11 @@ class UserCreateSecurityTest {
                 .isEqualTo(200);
         UserDto[] list = users.as(UserDto[].class);
         assertThat(list).as("Ответ /user/get должен оставаться корректным JSON-массивом").isNotNull();
+
+        boolean markerStillExists = Arrays.stream(list)
+                .anyMatch(u -> u.username().equals(markerUsername));
+        assertThat(markerStillExists)
+                .as("Маркерный пользователь %s должен остаться в БД — данные не должны быть удалены инъекцией", markerUsername)
+                .isTrue();
     }
 }
